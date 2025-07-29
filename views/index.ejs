@@ -4,13 +4,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realtime tracking system</title>
+    <title>RealTime Tracker - Live Location Tracking</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="map"></div>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>RealTime Tracker</span>
+            </div>
+            <div class="header-info">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span id="connection-status">Connecting...</span>
+                </div>
+                <div class="user-count">
+                    <i class="fas fa-users"></i>
+                    <span id="user-count">0</span> active
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-satellite-dish"></i> Live Tracking</h3>
+            </div>
+            
+            <div class="tracking-controls">
+                <button id="locate-btn" class="control-btn primary">
+                    <i class="fas fa-crosshairs"></i>
+                    Center on Me
+                </button>
+                
+                <button id="toggle-tracking" class="control-btn secondary">
+                    <i class="fas fa-pause"></i>
+                    Pause Tracking
+                </button>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-item">
+                    <div class="info-label">Your Location</div>
+                    <div class="info-value" id="current-coords">Getting location...</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Accuracy</div>
+                    <div class="info-value" id="accuracy">-- meters</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Last Update</div>
+                    <div class="info-value" id="last-update">--</div>
+                </div>
+            </div>
+
+            <div class="users-list">
+                <h4><i class="fas fa-map-pin"></i> Active Users</h4>
+                <div id="users-container">
+                    <!-- Users will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <div id="map"></div>
+            
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <button id="zoom-in" class="map-control-btn">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button id="zoom-out" class="map-control-btn">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button id="fullscreen" class="map-control-btn">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Initializing location services...</p>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet-src.min.js" integrity="sha512-3/WyQrhTdqSVmSifQS62akgtNBhZha2lS44TnoN9Jk3J01FvsKK4suVmz6t5FtccGb5iJw58GoFhBjPE5EPc8Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
@@ -19,9 +110,21 @@
     <script src="/js/script.js"></script>
 
     <script>
-  const socket = io(); // 🔗 This creates a connection to the server
-  console.log("Socket connected on client side");
-</script>
+        const socket = io();
+        console.log("Socket connected on client side");
+        
+        // Update connection status
+        socket.on('connect', () => {
+            document.getElementById('connection-status').textContent = 'Connected';
+            document.querySelector('.status-dot').classList.add('connected');
+            document.getElementById('loading-overlay').style.display = 'none';
+        });
+        
+        socket.on('disconnect', () => {
+            document.getElementById('connection-status').textContent = 'Disconnected';
+            document.querySelector('.status-dot').classList.remove('connected');
+        });
+    </script>
 
     
 </body>
